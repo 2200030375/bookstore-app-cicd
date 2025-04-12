@@ -4,7 +4,8 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                git 'https://github.com/2200030375/book-app-cicd.git'
+                // Ensure the correct repository URL and branch
+                git branch: 'main', url: 'https://github.com/2200030375/bookstore-app-cicd.git'
             }
         }
 
@@ -12,8 +13,10 @@ pipeline {
             steps {
                 script {
                     try {
+                        // Deploy using Ansible
                         sh 'ansible-playbook ansible/playbook.yml -i ansible/inventory'
                     } catch (Exception e) {
+                        // Rollback if deployment fails
                         echo "Deployment failed. Triggering rollback..."
                         sh 'ansible-playbook ansible/rollback.yml -i ansible/inventory'
                     }
