@@ -2,23 +2,28 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repo') {
+        stage('Clone') {
             steps {
-                // Ensure the correct repository URL and branch
-                git branch: 'main', url: 'https://github.com/2200030375/bookstore-app-cicd.git'
+                echo 'Cloning from GitHub...'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'echo Building on Windows...'
             }
         }
 
         stage('Deploy App') {
             steps {
                 script {
-                    try {
-                        // Deploy using Ansible
-                        bat 'ansible-playbook ansible/playbook.yml -i ansible/inventory'
-                    } catch (Exception e) {
-                        // Rollback if deployment fails
-                        echo "Deployment failed. Triggering rollback..."
-                        bat 'ansible-playbook ansible/rollback.yml -i ansible/inventory'
+                    def status = bat(script: 'your_deploy_script.bat', returnStatus: true)
+                    if (status != 0) {
+                        echo 'Deployment failed. Triggering rollback...'
+                        bat 'your_rollback_script.bat'
+                        error('Deployment failed and rollback executed.')
+                    } else {
+                        echo 'Deployment successful.'
                     }
                 }
             }
