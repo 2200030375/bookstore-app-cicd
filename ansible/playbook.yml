@@ -1,0 +1,30 @@
+- name: Deploy Bookstore App
+  hosts: web
+  become: yes
+  tasks:
+    - name: Ensure PM2 is installed
+      npm:
+        name: pm2
+        global: yes
+        state: present
+
+    - name: Pull latest app code
+      git:
+        repo: https://github.com/2200030375/book-app-cicd.git
+        dest: /opt/bookstore
+        force: yes
+
+    - name: Install dependencies
+      shell: |
+        cd /opt/bookstore
+        npm install
+
+    - name: Build app
+      shell: |
+        cd /opt/bookstore
+        npm run build
+
+    - name: Start app with PM2
+      shell: |
+        cd /opt/bookstore
+        pm2 start npm --name bookstore -- run start || pm2 restart bookstore

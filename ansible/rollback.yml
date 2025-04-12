@@ -1,0 +1,22 @@
+- name: Rollback Bookstore App
+  hosts: web
+  become: yes
+  tasks:
+    - name: Checkout previous commit
+      shell: |
+        cd /opt/bookstore
+        git checkout HEAD~1
+
+    - name: Install dependencies
+      shell: |
+        cd /opt/bookstore
+        npm install
+
+    - name: Build previous version
+      shell: |
+        cd /opt/bookstore
+        npm run build
+
+    - name: Restart previous version
+      shell: |
+        pm2 restart bookstore
